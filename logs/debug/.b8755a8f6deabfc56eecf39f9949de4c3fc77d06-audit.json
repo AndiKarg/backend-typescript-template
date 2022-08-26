@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "C:\\Users\\AndreasKarg\\Documents\\_DEV\\_SANDBOX\\07_TYPEORM_JS\\second-try\\src\\logs\\debug\\.b8755a8f6deabfc56eecf39f9949de4c3fc77d06-audit.json",
+    "files": [
+        {
+            "date": 1661516121276,
+            "name": "C:\\Users\\AndreasKarg\\Documents\\_DEV\\_SANDBOX\\07_TYPEORM_JS\\second-try\\src\\logs\\debug\\2022-08-26.log",
+            "hash": "79b521a5864088d74e9837723945de25427f3d4db4b1ccbf1ca91d88d4e9dd9b"
+        }
+    ],
+    "hashType": "sha256"
+}
