@@ -8,28 +8,36 @@ import morgan from 'morgan';
 import compression from 'compression';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
-import { createConnection } from 'typeorm';
+import { createConnection, Repository } from 'typeorm';
 import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
-import { dbConnection } from '@database';
+import { mongoConnection, oracleConnection } from '@database';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import session from 'express-session';
+import { TypeormStore } from 'typeorm-store';
+import { getConnection } from 'typeorm';
+import { Session } from '@/models/sessions.model.mongo';
 
 class App {
   public app: express.Application;
   public env: string;
   public port: string | number;
+  public sessionStore: Repository<Session>;
 
   constructor(routes: Routes[]) {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
 
-    this.env !== 'test' && this.connectToDatabase();
-    this.initializeMiddlewares();
-    this.initializeRoutes(routes);
     this.initializeSwagger();
     this.initializeErrorHandling();
+    this.connectToDatabases().then(() => {
+      this.sessionStore = getConnection('mongo').getRepository(Session);
+
+      this.initializeMiddlewares();
+      this.initializeRoutes(routes);
+    });
   }
 
   public listen() {
@@ -45,8 +53,8 @@ class App {
     return this.app;
   }
 
-  private connectToDatabase() {
-    createConnection(dbConnection);
+  private async connectToDatabases() {
+    return await Promise.all([createConnection(oracleConnection), createConnection(mongoConnection)]);
   }
 
   private initializeMiddlewares() {
@@ -58,6 +66,20 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use(
+      session({
+        secret: 'nudel666',
+        resave: true,
+        saveUninitialized: true,
+        cookie: {
+          secure: true,
+          httpOnly: false,
+          sameSite: 'none',
+          maxAge: 7 * 86400 * 1000, //expires ist deprecated
+        },
+        store: new TypeormStore({ repository: this.sessionStore }),
+      }),
+    );
   }
 
   private initializeRoutes(routes: Routes[]) {
