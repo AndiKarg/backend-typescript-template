@@ -4,9 +4,13 @@ import { RequestWithUser } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import AuthService from '@services/auth.service';
 
+
 class AuthController {
   public authService = new AuthService();
 
+  /**
+   * @group Routes
+   */
   public signUp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userData: CreateUserDto = req.body;
@@ -18,6 +22,9 @@ class AuthController {
     }
   };
 
+  /**
+   * @group Routes
+   */
   public logIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userData: CreateUserDto = req.body;
@@ -30,6 +37,9 @@ class AuthController {
     }
   };
 
+  /**
+   *  @group Routes
+*/
   public logOut = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userData: User = req.user;

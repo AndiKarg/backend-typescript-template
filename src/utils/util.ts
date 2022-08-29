@@ -1,4 +1,5 @@
 /**
+ * @group Utils
  * @method isEmpty
  * @param {String | Number | Object} value
  * @returns {Boolean} true & false

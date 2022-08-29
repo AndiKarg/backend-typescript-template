@@ -2,6 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import { HttpException } from '@exceptions/HttpException';
 import { logger } from '@utils/logger';
 
+/**
+ * It takes an error, logs it, and sends a response with the error's status code and message
+ * @param {HttpException} error - The error object that was thrown.
+ * @param {Request} req - Request - The request object
+ * @param {Response} res - Response - The response object
+ * @param {NextFunction} next - This is a function that will be called if the middleware passes the
+ * error to the next middleware.
+ */
 const errorMiddleware = (error: HttpException, req: Request, res: Response, next: NextFunction) => {
   try {
     const status: number = error.status || 500;

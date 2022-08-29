@@ -35,6 +35,19 @@
       "@utils/*": ["utils/*"]
     }
   },
+   "typedocOptions": {
+     "entryPoints": ["src/controllers", "src/interfaces", "src/models", "src/middlewares", "src/utils"],
+     "entryPointStrategy": "expand",
+     "out": "docs",
+     "plugin": ["typedoc-umlclass"],
+     "searchInComments": true,
+     "categorizeByGroup": true,
+     "umlClassDiagram": {
+       "type": "detailed",
+       "location": "local",
+       "format": "svg"
+     },
+   },
   "include": ["src/**/*.ts", "src/**/*.json", ".env"],
   "exclude": ["node_modules", "src/http", "src/logs", "src/tests"]
 }

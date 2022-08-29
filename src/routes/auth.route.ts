@@ -14,9 +14,33 @@ class AuthRoute implements Routes {
     this.initializeRoutes();
   }
 
+  /**
+   * This comment _supports_ [Markdown](https://marked.js.org/)
+   */
   private initializeRoutes() {
+    /**
+     * This comment _supports_ [Markdown](https://marked.js.org/)
+     */
     this.router.post(`${this.path}signup`, validationMiddleware(CreateUserDto, 'body'), this.authController.signUp);
+
+    /**
+     * Tries to log a User in and saves a cookie in the User storage (for the session).
+     *
+     * @group Auth
+     * @param lol lol
+     * @param {String} lol2 lol2
+     * @example
+     *
+     *   axios.post(`${backend}/employees/login`, {
+            "email": "andreas.karg@digital-rally.de",
+            "password": "nudel666"
+          }, {withCredentials: true})
+    */
     this.router.post(`${this.path}login`, validationMiddleware(CreateUserDto, 'body'), this.authController.logIn);
+
+    /**
+     * @group Auth
+     */
     this.router.post(`${this.path}logout`, authMiddleware, this.authController.logOut);
   }
 }
