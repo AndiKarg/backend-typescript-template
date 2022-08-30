@@ -1,6 +1,6 @@
 import { hash } from 'bcrypt';
 import { EntityRepository, Repository } from 'typeorm';
-import { CreateUserDto } from '@validators/users.validator';
+import { UserValidator } from '@validators/users.validator';
 import { UserEntity } from '@models/users.model';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
@@ -22,7 +22,7 @@ class UserService extends Repository<UserEntity> {
     return findUser;
   }
 
-  public async createUser(userData: CreateUserDto): Promise<User> {
+  public async createUser(userData: UserValidator): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
@@ -34,7 +34,7 @@ class UserService extends Repository<UserEntity> {
     return createUserData;
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<User> {
+  public async updateUser(userId: number, userData: UserValidator): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });

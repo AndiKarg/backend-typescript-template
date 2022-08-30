@@ -1,40 +1,54 @@
-import { compare, hash } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
+
 import { EntityRepository, Repository } from 'typeorm';
-import { SECRET_KEY } from '@config';
-import { CreateUserDto } from '@validators/users.validator';
 import { UserEntity } from '@models/users.model';
 import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
+import {
+  AuthenticationResult,
+  ConfidentialClientApplication,
+} from '@azure/msal-node';
 
 @EntityRepository()
-class AuthService extends Repository<UserEntity> {
-  public async signup(userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
+class AuthService {
+  cca: ConfidentialClientApplication;
 
-    const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
-    if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
+  loginRequest = {
+    scopes: ['user.read'],
+    redirectUri: 'http://localhost:3000/redirect',
+  };
 
-    const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await UserEntity.create({ ...userData, password: hashedPassword }).save();
-    return createUserData;
+  constructor() {
+    this.cca = new ConfidentialClientApplication({
+      auth: {
+        clientId: '5ecbe09e-3256-43fa-9d70-8d10c36f7a2d',
+        authority: 'https://login.microsoftonline.com/ed19a6be-6641-4a38-9a8f-ef2005241c4e',
+        clientSecret: 'BYb8Q~36moRoY-TBxjotY5h.R6.Ld6WcJqSiGcJC',
+      },
+    });
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
-    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
+  public async msalLogin(): Promise<string> {
+    const authcode: string = await this.cca.getAuthCodeUrl({
+      scopes: ['user.read'],
+      redirectUri: 'http://localhost:3000/auth/msauth/callback',
+    });
+    return authcode;
+  }
 
-    const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
-    if (!findUser) throw new HttpException(409, `This email ${userData.email} was not found`);
-
-    const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
-    if (!isPasswordMatching) throw new HttpException(409, 'Password not matching');
-
-    const tokenData = this.createToken(findUser);
-    const cookie = this.createCookie(tokenData);
-
-    return { cookie, findUser };
+  public async msalCallback(code: string): Promise<AuthenticationResult> {
+    if (!code) throw new HttpException(400, 'Invalid code');
+    try {
+      const foundUser: AuthenticationResult = await this.cca.acquireTokenByCode({
+        code: code,
+        scopes: ['user.read'],
+        redirectUri: 'http://localhost:3000/auth/msauth/callback',
+      });
+      return foundUser;
+    } catch (error) {
+      console.error("FEHLER BEI MSAL CALLBACK SERVICE", error);
+      throw new HttpException(error.status, error.message);
+    }
   }
 
   public async logout(userData: User): Promise<User> {
@@ -44,18 +58,6 @@ class AuthService extends Repository<UserEntity> {
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
     return findUser;
-  }
-
-  public createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { id: user.id };
-    const secretKey: string = SECRET_KEY;
-    const expiresIn: number = 60 * 60;
-
-    return { expiresIn, token: sign(dataStoredInToken, secretKey, { expiresIn }) };
-  }
-
-  public createCookie(tokenData: TokenData): string {
-    return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
   }
 }
 

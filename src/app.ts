@@ -37,7 +37,7 @@ class App {
 
       this.initializeMiddlewares();
       this.initializeRoutes(routes);
-    });
+    })
   }
 
   public listen() {
@@ -77,7 +77,7 @@ class App {
           sameSite: 'none',
           maxAge: 7 * 86400 * 1000, //expires ist deprecated
         },
-        store: new TypeormStore({ repository: this.sessionStore }),
+        store: new TypeormStore({ repository: this.sessionStore, ttl: 60 * 60 * 24 * 7 }),
       }),
     );
   }

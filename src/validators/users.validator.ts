@@ -1,6 +1,6 @@
 import { IsEmail, IsString } from 'class-validator'; //--eslint-disable
 
-export class CreateUserDto {
+export class UserValidator {
   @IsEmail()
   public email: string;
 
