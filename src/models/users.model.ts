@@ -17,6 +17,10 @@ export class UserEntity extends BaseEntity implements User {
   name: string;
 
   @Column()
+  @IsNotEmpty()
+  password: string;
+
+  @Column()
   @CreateDateColumn()
   createdAt: Date;
 
