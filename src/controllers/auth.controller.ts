@@ -14,7 +14,6 @@ class AuthController {
    */
   public msalLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      console.log("HIII");
       const authUrl: string = await this.authService.msalLogin();
       res.redirect(authUrl);
     } catch (error) {
@@ -27,31 +26,16 @@ class AuthController {
    */
   public msalCallback = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      console.log("BIN IM MSAL CALLBACK", req.query);
       const code: string = req.query.code as string;
-      console.log("CODE", code);
       const foundUser: AuthenticationResult = await this.authService.msalCallback(code);
-      console.log('FOUND USER', foundUser);
+      console.log("SESSION",req.session)
+      req.session.user = {id: 1, email: foundUser.account.idTokenClaims.email as string, name: foundUser.account.name as string};
       res.send("EINGELOGGT");
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   *  @group Routes
-   */
-  public logOut = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userData: User = req.user;
-      const logOutUserData: User = await this.authService.logout(userData);
-
-      res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
-      res.status(200).json({ data: logOutUserData, message: 'logout' });
-    } catch (error) {
-      next(error);
-    }
-  };
 }
 
 export default AuthController;

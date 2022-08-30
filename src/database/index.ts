@@ -25,6 +25,7 @@ export const mongoConnection: ConnectionOptions = {
   type: 'mongodb',
   // username: DB_USER,
   // password: DB_PASSWORD,
+  database: 'eoc-api-hub',
   port: 27017,
   synchronize: true,
   logging: false,

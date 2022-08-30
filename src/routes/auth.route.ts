@@ -26,10 +26,6 @@ class AuthRoute implements Routes {
      */
     this.router.get(`${this.path}/msauth/callback`, this.authController.msalCallback);
 
-    /**
-     * @group Auth
-     */
-    this.router.post(`${this.path}logout`, authMiddleware, this.authController.logOut);
   }
 }
 

@@ -18,6 +18,13 @@ import session from 'express-session';
 import { TypeormStore } from 'typeorm-store';
 import { getConnection } from 'typeorm';
 import { Session } from '@/models/sessions.model.mongo';
+import { User } from './interfaces/users.interface';
+
+declare module 'express-session' {
+  interface SessionData {
+    user: User;
+  }
+}
 
 class App {
   public app: express.Application;
@@ -77,7 +84,7 @@ class App {
           sameSite: 'none',
           maxAge: 7 * 86400 * 1000, //expires ist deprecated
         },
-        store: new TypeormStore({ repository: this.sessionStore, ttl: 60 * 60 * 24 * 7 }),
+        // store: new TypeormStore({ repository: this.sessionStore, ttl: 60 * 60 * 24 * 7 }),
       }),
     );
   }
