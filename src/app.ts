@@ -15,10 +15,11 @@ import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import session from 'express-session';
-import { TypeormStore } from 'typeorm-store';
+// import { TypeormStore } from 'typeorm-store';
 import { getConnection } from 'typeorm';
-import { Session } from '@/models/sessions.model.mongo';
+import { Session } from '@/models/sessions.model';
 import { User } from './interfaces/users.interface';
+import { TypeormStore } from "connect-typeorm";
 
 declare module 'express-session' {
   interface SessionData {
@@ -30,7 +31,7 @@ class App {
   public app: express.Application;
   public env: string;
   public port: string | number;
-  public sessionStore: Repository<Session>;
+  public sessionRepository: Repository<Session>;
 
   constructor(routes: Routes[]) {
     this.app = express();
@@ -40,7 +41,7 @@ class App {
     this.initializeSwagger();
     this.initializeErrorHandling();
     this.connectToDatabases().then(() => {
-      this.sessionStore = getConnection('mongo').getRepository(Session);
+      this.sessionRepository = getConnection('oracle').getRepository(Session);
 
       this.initializeMiddlewares();
       this.initializeRoutes(routes);
@@ -85,7 +86,11 @@ class App {
           maxAge: 7 * 86400 * 1000, //expires ist deprecated
         },
         //wenn das auskommentiere dann kommt kein fehler -> evtl connect-typeorm probieren
-        store: new TypeormStore({ repository: this.sessionStore, ttl: 60 * 60 * 24 * 7 }),
+        store: new TypeormStore({
+          cleanupLimit: 2,
+          limitSubquery: false, // If using MariaDB.
+          ttl: 86400,
+        }).connect(this.sessionRepository)
       }),
     );
   }

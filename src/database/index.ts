@@ -8,7 +8,7 @@ export const oracleConnection: ConnectionOptions = {
   username: DB_USER,
   password: DB_PASSWORD,
   connectString: DB_CONNECT_STRING,
-  synchronize: false,
+  synchronize: true,
   logging: false,
   entities: [join(__dirname, '../**/*model{.ts,.js}')],
   // migrations: [join(__dirname, '../**/*.migration{.ts,.js}')],

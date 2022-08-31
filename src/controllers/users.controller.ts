@@ -16,6 +16,15 @@ class UsersController {
     }
   };
 
+  public getUsersInfo = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      console.log("IS AUTHENTICATED", req.session, req.sessionID);
+      res.status(200).json({ data: req.session.user});
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = Number(req.params.id);

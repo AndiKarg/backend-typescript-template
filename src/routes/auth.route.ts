@@ -19,12 +19,12 @@ class AuthRoute implements Routes {
     /**
      * @group Auth
      */
-    this.router.get(`${this.path}/msauth/login`, this.authController.msalLogin);
+    this.router.get(`${this.path}/microsoft`, this.authController.msalLogin);
 
     /**
      * @group Auth
      */
-    this.router.get(`${this.path}/msauth/callback`, this.authController.msalCallback);
+    this.router.get(`${this.path}/microsoft/callback`, this.authController.msalCallback);
 
   }
 }

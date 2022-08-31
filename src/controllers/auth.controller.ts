@@ -28,9 +28,9 @@ class AuthController {
     try {
       const code: string = req.query.code as string;
       const foundUser: AuthenticationResult = await this.authService.msalCallback(code);
-      console.log("SESSION",req.session)
       req.session.user = {id: 1, email: foundUser.account.idTokenClaims.email as string, name: foundUser.account.name as string};
-      res.send("EINGELOGGT");
+      console.log("SESSION DANACH",req.session);
+      res.redirect('http://localhost:3000/users/info');
     } catch (error) {
       next(error);
     }
