@@ -1,8 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column} from 'typeorm';
 
 @Entity()
-export class Viewgroup extends BaseEntity {
+export class Viewaction extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
