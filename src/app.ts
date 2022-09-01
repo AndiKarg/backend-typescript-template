@@ -9,17 +9,16 @@ import compression from 'compression';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import { createConnection, Repository } from 'typeorm';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
+import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, CLIENT_ID, CLIENT_SECRET } from '@config';
 import { mongoConnection, oracleConnection } from '@database';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
-import session from 'express-session';
-// import { TypeormStore } from 'typeorm-store';
 import { getConnection } from 'typeorm';
 import { Session } from '@/models/sessions.model';
 import { User } from './interfaces/users.interface';
 import { TypeormStore } from "connect-typeorm";
+const session = require("express-session");
 
 declare module 'express-session' {
   interface SessionData {
@@ -32,6 +31,7 @@ class App {
   public env: string;
   public port: string | number;
   public sessionRepository: Repository<Session>;
+  public passport;
 
   constructor(routes: Routes[]) {
     this.app = express();
@@ -40,12 +40,14 @@ class App {
 
     this.initializeSwagger();
     this.initializeErrorHandling();
-    this.connectToDatabases().then(() => {
-      this.sessionRepository = getConnection('oracle').getRepository(Session);
+    this.connectToDatabases()
+      .then(() => {
+        this.sessionRepository = getConnection('oracle').getRepository(Session);
 
-      this.initializeMiddlewares();
-      this.initializeRoutes(routes);
-    }).catch(e => console.error("ERROR DB CONNECTION",e))
+        this.initializeMiddlewares();
+        this.initializeRoutes(routes);
+      })
+      .catch(e => console.error('ERROR DB CONNECTION', e));
   }
 
   public listen() {
@@ -90,7 +92,7 @@ class App {
           cleanupLimit: 2,
           limitSubquery: false, // If using MariaDB.
           ttl: 86400,
-        }).connect(this.sessionRepository)
+        }).connect(this.sessionRepository),
       }),
     );
   }

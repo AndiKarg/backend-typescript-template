@@ -1,13 +1,12 @@
 
 import { EntityRepository, Repository } from 'typeorm';
-import { UserEntity } from '@models/users.model';
 import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
-import { isEmpty } from '@utils/util';
 import {
   AuthenticationResult,
   ConfidentialClientApplication,
 } from '@azure/msal-node';
+import passport from "passport";
+const MicrosoftStrategy = require("passport-microsoft").Strategy
 
 @EntityRepository()
 class AuthService {
