@@ -19,7 +19,7 @@ class UsersController {
   public getUsersInfo = (req: Request, res: Response, next: NextFunction): void => {
     try {
       console.log("IS AUTHENTICATED", req.session, req.sessionID);
-      res.status(200).json({ data: req.session.user});
+      res.status(200).json({ data: req.session});
     } catch (error) {
       next(error);
     }

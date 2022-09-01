@@ -17,26 +17,37 @@ import { logger, stream } from '@utils/logger';
 import { getConnection } from 'typeorm';
 import { Session } from '@/models/sessions.model';
 import { User } from './interfaces/users.interface';
-import { TypeormStore } from "connect-typeorm";
-const session = require("express-session");
-
+import { TypeormStore } from 'connect-typeorm';
+import session from 'express-session';
+import fs from 'fs';
+import https from 'https';
 declare module 'express-session' {
   interface SessionData {
     user: User;
+    db: string;
   }
 }
 
 class App {
   public app: express.Application;
+  public httpsServer;
   public env: string;
   public port: string | number;
   public sessionRepository: Repository<Session>;
-  public passport;
+  private options;
 
   constructor(routes: Routes[]) {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
+
+    this.options = {
+      key: fs.readFileSync('src/assets/certificates/privkey.pem'),
+      cert: fs.readFileSync('src/assets/certificates/cert.pem'),
+      ca: fs.readFileSync('src/assets/certificates/fullchain.pem'),
+      requestCert: false,
+      rejectUnauthorized: false,
+    };
 
     this.initializeSwagger();
     this.initializeErrorHandling();
@@ -51,7 +62,8 @@ class App {
   }
 
   public listen() {
-    this.app.listen(this.port, () => {
+    this.httpsServer = https.createServer(this.options, this.app);
+    this.httpsServer.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 App listening on the port ${this.port}`);
@@ -69,17 +81,18 @@ class App {
 
   private initializeMiddlewares() {
     this.app.use(morgan(LOG_FORMAT, { stream }));
-    this.app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
+    // this.app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
+    // this.app.use(cors({ credentials: true, origin: true }));
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(cookieParser());
+    this.app.use(cookieParser('nudel666'));
     this.app.use(
       session({
         secret: 'nudel666',
-        resave: true,
+        resave: false,
         saveUninitialized: true,
         cookie: {
           secure: true,

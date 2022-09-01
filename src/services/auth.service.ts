@@ -5,8 +5,6 @@ import {
   AuthenticationResult,
   ConfidentialClientApplication,
 } from '@azure/msal-node';
-import passport from "passport";
-const MicrosoftStrategy = require("passport-microsoft").Strategy
 
 @EntityRepository()
 class AuthService {
@@ -14,7 +12,7 @@ class AuthService {
 
   loginRequest = {
     scopes: ['user.read'],
-    redirectUri: 'http://localhost:3000/redirect',
+    redirectUri: 'https://localhost:3000/redirect',
   };
 
   constructor() {
@@ -30,7 +28,7 @@ class AuthService {
   public async msalLogin(): Promise<string> {
     const authcode: string = await this.cca.getAuthCodeUrl({
       scopes: ['user.read'],
-      redirectUri: 'http://localhost:3000/auth/microsoft/callback',
+      redirectUri: 'https://localhost:3000/auth/microsoft/callback',
     });
     return authcode;
   }
@@ -41,7 +39,7 @@ class AuthService {
       const foundUser: AuthenticationResult = await this.cca.acquireTokenByCode({
         code: code,
         scopes: ['user.read'],
-        redirectUri: 'http://localhost:3000/auth/microsoft/callback',
+        redirectUri: 'https://localhost:3000/auth/microsoft/callback',
       });
       return foundUser;
     } catch (error) {

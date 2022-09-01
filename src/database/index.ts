@@ -8,6 +8,7 @@ export const oracleConnection: ConnectionOptions = {
   username: DB_USER,
   password: DB_PASSWORD,
   connectString: DB_CONNECT_STRING,
+  entityPrefix: "tbl_",
   synchronize: true,
   logging: false,
   entities: [join(__dirname, '../**/*model{.ts,.js}')],
